@@ -112,14 +112,16 @@ public:
         double total = 0;
         cout << "Items in your cart:\n-------------------" << endl;
         for (auto it = items.rbegin(); it != items.rend(); ++it) {
-            cout << it->first.id << " - " << it->first.name 
-                 << " - Quantity: " << it->second 
-                 << " - Price: $" << fixed << setprecision(2) << it->first.price * it->second << endl;
+                                    
+            cout << it->first.id << " - " << it->first.name
+                 << " - Quantity: " << it->second
+                 << " - Item Price: Php. " << fixed << setprecision(2) << it->first.price
+                 << " - Subtotal: Php. " << fixed << setprecision(2) << it->first.price * it->second << endl;
             total += it->first.price * it->second;
         }
         cout << "-------------------" << endl;
-        cout << "Total items: " << totalItems() << endl;
-        cout << "Total Price: $" << fixed << setprecision(2) << total << endl;
+        cout << "Total items in cart: " << totalItems() << endl;
+        cout << "Total Price: Php. " << fixed << setprecision(2) << total << endl;
     }
 
     int totalItems() const {
@@ -157,7 +159,7 @@ private:
 public:
     Auth() {
         // Adding a test user for testing
-        users.emplace_back("testuser@example.com", "password123");
+        users.emplace_back("alex_trisha@gmail.com", "inteprogfinals");
     }
 
     void signUp(const string& email, const string& password) {
@@ -351,11 +353,16 @@ private:
         int choice;
         while (true) {
             cout << "\n======= Main Menu =======\n";
-            cout << "1. Browse Products\n2. Search Products\n3. Filter Products\n4. View Cart\n5. Add to Cart\n6. Edit Cart\n7. Checkout\n8. Purchase History\n9. Logout\n";
+            cout << "1. Browse Products\n2. Search Products\n3. Filter Products\n4. View Cart\n5. Add to Cart\n6. Update Cart\n7. Checkout\n8. Purchase History\n9. Logout\n";
             cout << "==========================\n";
             cout << "Enter your choice: ";
-            cin >> choice;
-            cin.ignore();
+            while (!(cin >> choice)) {
+
+                cout << "Invalid input. Please enter a number: ";
+                cin.clear();
+                cin.ignore(100, '\n'); 
+            }
+            cin.ignore(100, '\n'); 
 
             switch (choice) {
                 case 1: browseProducts(); break;
@@ -376,16 +383,16 @@ private:
     }
 
     void browseProducts() {
-        cout << "\nAvailable Digital Products:\n-------------------" << endl;
+        cout << "\nAvailable Digital Products:\n------------------" << endl;
         for (const auto& product : products) {
             cout << product.id << " - " << product.name
                  << " - Category: " << product.category
-                 << " - Price: $" << fixed << setprecision(2) << product.price << endl;
+                 << " - Price: Php. " << fixed << setprecision(2) << product.price << endl;
         }
     }
 
     void searchProducts() {
-        cout << "\nSearch Products:" << endl;
+        cout << "\nSearch Products:\n------------------" << endl;
         cout << "Enter search term: ";
         string term;
         getline(cin, term);
@@ -395,10 +402,10 @@ private:
         for (const auto& product : products) {
             string nameLower = product.name;
             transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower);
-            if (nameLower.find(term) != string::npos) {
+            if (nameLower.find(term) < nameLower.length()) {
                 cout << product.id << " - " << product.name
                      << " - Category: " << product.category
-                     << " - Price: $" << fixed << setprecision(2) << product.price << endl;
+                     << " - Price: Php. " << fixed << setprecision(2) << product.price << endl;
                 found = true;
             }
         }
@@ -420,8 +427,13 @@ private:
 
         cout << "Choose category number: ";
         int catChoice;
-        cin >> catChoice;
-        cin.ignore();
+        while (!(cin >> catChoice)) {
+            cout << "Invalid input. Please enter a number: ";
+            cin.clear();
+            cin.ignore(100, '\n');
+        }
+        cin.ignore(100, '\n');
+
         if (catChoice < 1 || catChoice > (int)categories.size()) {
             cout << "Invalid category choice." << endl;
             return;
@@ -432,7 +444,7 @@ private:
         for (const auto& product : products) {
             if (product.category == selectedCategory) {
                 cout << product.id << " - " << product.name
-                     << " - Price: $" << fixed << setprecision(2) << product.price << endl;
+                     << " - Price: Php. " << fixed << setprecision(2) << product.price << endl;
             }
         }
     }
@@ -464,7 +476,7 @@ private:
             for (auto& product : products) {
                 string nameLower = product.name;
                 transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower);
-                if (nameLower.find(inputLower) != string::npos) {
+                if (nameLower.find(inputLower) < nameLower.length()) {
                     productPtr = &product;
                     break;
                 }
@@ -481,11 +493,58 @@ private:
             if (!(cin >> quantity) || quantity <= 0) {
                 cout << "Invalid quantity. Please enter a positive number." << endl;
                 cin.clear();
-                cin.ignore(10000, '\n');
+                cin.ignore(100, '\n');
                 quantity = 0;
             }
         }
-        cin.ignore();
+        cin.ignore(100, '\n'); 
+        cart.addItem(*productPtr, quantity);
+        cout << "Successfully added " << productPtr->name << " to cart!" << endl;
+    }
+
+    void addMoreProductToCart() {
+        cout << "\nAdd more product to cart:" << endl;
+        browseProducts();
+        cout << "Enter product ID or name to add (or 'exit' to cancel): ";
+        string input;
+        getline(cin, input);
+        if (input == "exit") return;
+        Product* productPtr = nullptr;
+        for (auto& product : products) {
+            if (product.id == input) { productPtr = &product; break; }
+        }
+        if (!productPtr) {
+            string inputLower = input;
+            transform(inputLower.begin(), inputLower.end(), inputLower.begin(), ::tolower);
+            
+            for (auto& product : products) {
+                string nameLower = product.name;
+                transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower);
+
+                if (nameLower.find(inputLower) < nameLower.length()) { 
+                    productPtr = &product;
+                    break;
+                }
+            }
+        }
+
+        if (!productPtr) {
+            cout << "Product not found." << endl;
+            return;
+        }
+
+        int quantity = 0;
+        while (quantity <= 0) {
+            cout << "Enter quantity: ";
+            if (!(cin >> quantity) || quantity <= 0) {
+                cout << "Invalid quantity. Please enter a positive number." << endl;
+                cin.clear();
+                cin.ignore(100, '\n'); // Discard invalid input
+                quantity = 0;
+            }
+        }
+
+        cin.ignore(100, '\n');
 
         cart.addItem(*productPtr, quantity);
         cout << "Successfully added " << productPtr->name << " to cart!" << endl;
@@ -497,15 +556,22 @@ private:
             return;
         }
 
-        cout << "\nEdit Cart:\n------------" << endl;
+        cout << "\nUpdate Cart:\n------------" << endl;
         cart.viewCart();
 
-        cout << "Choose an option: 1. Remove items 2. Edit quantity 3. Cancel\nEnter choice: ";
+        cout << "Choose an option: 1. Add more product 2. Remove product 3. Edit Quantity 4. Cancel\nEnter choice: ";
         int choice;
-        cin >> choice;
-        cin.ignore();
+               
+        while (!(cin >> choice)) {
+            cout << "Invalid input. Please enter a number: ";
+            cin.clear(); 
+            cin.ignore(100, '\n');
+        }
+        cin.ignore(100, '\n');
 
         if (choice == 1) {
+            addMoreProductToCart(); }
+        else if (choice == 2) {
             cout << "Enter product ID to remove: ";
             string id;
             getline(cin, id);
@@ -530,7 +596,7 @@ private:
                 cout << "Removal canceled." << endl;
             }
         }
-        else if (choice == 2) {
+        else if (choice == 3) {
             cout << "Enter product ID to edit quantity: ";
             string id;
             getline(cin, id);
@@ -553,17 +619,17 @@ private:
                 if (!(cin >> newQuantity) || newQuantity <= 0) {
                     cout << "Invalid quantity. Please enter a positive number." << endl;
                     cin.clear();
-                    cin.ignore(10000, '\n');
+                    cin.ignore(100, '\n');
                     newQuantity = 0;
                 }
             }
-            cin.ignore();
+            cin.ignore(100, '\n');
 
             cart.updateQuantity(id, newQuantity);
             cout << "Successfully adjusted quantity of item!" << endl;
         }
-        else if (choice == 3) {
-            cout << "Edit cancelled." << endl;
+        else if (choice == 4) {
+            cout << "Update cancelled." << endl;
             return;
         }
         else {
@@ -632,7 +698,7 @@ private:
 
         cart.clearCart();
 
-        cout << "Successfully placed your order! You can now download your digital products." << endl;
+        cout << "Successfully placed your order! You can now download your digital products on your Purchased History." << endl;
     }
 
     void printReceipt(const Order& order) {
@@ -661,14 +727,14 @@ private:
         cout << "\nPurchased Digital Products:\n------------------" << endl;
         for (auto it = order.purchasedItems.rbegin(); it != order.purchasedItems.rend(); ++it) {
             const PurchasedItem& pi = *it;
-            cout << pi.product.id << " - " << pi.product.name
-                 << " - Quantity: " << pi.quantity
-                 << " - Price: $" << fixed << setprecision(2) << pi.priceAtPurchase * pi.quantity << endl;
-        }
+            cout << "[Download Here] " << pi.product.id << " - " << pi.product.name
+             << " - Quantity: " << pi.quantity
+             << " - Price: Php. " << fixed << setprecision(2) << pi.priceAtPurchase * pi.quantity << endl;
+    }
 
         cout << "------------------" << endl;
         cout << "Total Items: " << order.totalQuantity << endl;
-        cout << "Total Price: $" << fixed << setprecision(2) << order.totalPrice << endl;
+        cout << "Total Price: Php. " << fixed << setprecision(2) << order.totalPrice << endl;
 
         cout << "==========================================\n" << endl;
     }
