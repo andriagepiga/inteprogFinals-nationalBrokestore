@@ -93,11 +93,11 @@ public:
 
     void viewCart() const {
         if (items.empty()) {
-            cout << "Your cart is empty." << endl;
+            cout << "\nYour cart is empty." << endl;
             return;
         }
         double total = 0;
-        cout << "Items in your cart:\n-------------------" << endl;
+        cout << "\nItems in your cart:\n" << string(30, '-') << endl;
         for (int i = items.size() - 1; i >= 0; --i) {
             cout << items[i].first.id << " - " << items[i].first.name
                  << " - Quantity: " << items[i].second
@@ -105,7 +105,7 @@ public:
                  << " - Subtotal: Php. " << fixed << setprecision(2) << items[i].first.price * items[i].second << endl;
             total += items[i].first.price * items[i].second;
         }
-        cout << "-------------------" << endl;
+        cout << string(30, '-') << endl;
         cout << "Total items in cart: " << totalItems() << endl;
         cout << "Total Price: Php. " << fixed << setprecision(2) << total << endl;
     }
@@ -158,7 +158,7 @@ private:
 
 public:
     Auth() {
-        // Adding a test user for testing
+        // Test user for testing
         users.emplace_back("alex_trisha@gmail.com", "inteprogfinals");
     }
 
@@ -275,9 +275,9 @@ public:
 
     void run() {
         while (true) {
-            cout << "==============================================" << endl;
+            cout << "\n" << string(50, '=') << endl;
             cout << "      Welcome to National Brokestore!         " << endl;
-            cout << "==============================================" << endl;
+            cout << string(50, '=') << endl;
 
             char choice;
             cout << "Are you a registered user? (Y = Login, N = Sign Up, E = Exit): ";
@@ -298,7 +298,6 @@ public:
                 }
                 mainMenu();
 
-            /* When logging out from User Dashboard, the cart is saved back to currentUser->userCart and currentUser is set to nullptr. The currentActiveCart is effectively cleared for the next login (as it will be loaded from the new currentUser's userCart). */
             }
             else if (toupper(choice) == 'N') {
                 bool signedUp = signUpAndLogin();
@@ -388,9 +387,14 @@ private:
     void mainMenu() {
         int choice;
         while (true) {
-            cout << "\n======= User Dashboard =======\n";
-            cout << "1. Browse Products\n2. Digital Shopping Cart\n3. Checkout\n4. Purchase History\n5. Logout\n";
-            cout << "==========================\n";
+           cout << "\n======= User Dashboard =======" << endl;
+            cout << "1. Browse Products" << endl;
+            cout << "2. Digital Shopping Cart" << endl;
+            cout << "3. Checkout" << endl;
+            cout << "4. Purchase History" << endl;
+            cout << "5. Logout" << endl;
+            cout << "==============================" << endl;
+
             cout << "Enter your choice: ";
             while (!(cin >> choice)) {
 
@@ -423,9 +427,12 @@ private:
    void digitalShoppingCartMenu() {
         int choice;
         while (true) {
-            cout << "\n=== Digital Shopping Cart ===\n";
-            cout << "1. View Cart\n2. Update Cart\n3. Back to User Dashboard\n";
-            cout << "=============================\n";
+            cout << "\n=== Digital Shopping Cart ===" << endl;
+            cout << "1. View Cart" << endl;
+            cout << "2. Update Cart" << endl;
+            cout << "3. Back to User Dashboard" << endl;
+            cout << "=============================" << endl;
+
             cout << "Enter your choice: ";
 
             while (!(cin >> choice)) {
@@ -451,14 +458,14 @@ private:
             return;
         }
 
-        cout << "\n------------------" << endl;
+         cout << "\n" << string(18, '-') << endl;
 
         for (const auto& product : productsToDisplay) {
             cout << product.id << " - " << product.name
                  << " - Category: " << product.category
                  << " - Price: Php. " << fixed << setprecision(2) << product.price << endl;
         }
-        cout << "------------------" << endl;
+        cout << string(18, '-') << endl;
 
     }
     void browseProductsMenu() {
@@ -466,8 +473,12 @@ private:
         while (true) {
             cout << "\n===== Browse Products =====" << endl;
             displayProducts(products); // Display all products initially
-            cout << "1. Search Products\n2. Filter Products by Category\n3. Add Product to Cart\n4. Back to User Dashboard\n";
-            cout << "===========================\n";
+            cout << "1. Search Products" << endl;
+            cout << "2. Filter Products by Category" << endl;
+            cout << "3. Add Product to Cart" << endl;
+            cout << "4. Back to User Dashboard" << endl;
+            cout << "===========================" << endl;
+
             cout << "Enter your choice: ";
             while (!(cin >> choice)) {
                 cout << "Invalid input. Please enter a number: ";
@@ -497,8 +508,10 @@ private:
 
         int choice;
         while (true) {
-            cout << "\nWhat would you like to do with these results?\n";
-            cout << "1. Add a product to cart\n2. Continue Browse\n";
+            cout << "\nWhat would you like to do with these results?" << endl;
+            cout << "1. Add a product to cart" << endl;
+            cout << "2. Continue Browse" << endl;
+
             cout << "Enter your choice: ";
 
             while (!(cin >> choice)) {
@@ -526,7 +539,7 @@ private:
     }
 
     void searchProducts() {
-        cout << "\nSearch Products:\n------------------" << endl;
+        cout << "\nSearch Products:\n" << string(18, '-') << endl;
         cout << "Enter search term: ";
         string term;
         getline(cin, term);
@@ -570,6 +583,11 @@ private:
             if (!exists) {
                 categories.push_back(p.category);
             }
+        }
+
+        if(categories.empty()) {
+            cout << "No categories found." << endl;
+            return;
         }
 
         for (size_t i = 0; i < categories.size(); ++i) {
@@ -621,7 +639,9 @@ private:
 
         const Product* productPtr = nullptr; // Changed to const Product*
         for (const auto& product : availableProducts) { // Search only within the provided list
-            if (product.id == input) { productPtr = &product; break; }
+            if (product.id == input) { 
+                productPtr = &product; 
+                break; }
         }
         if (!productPtr) {
             string lowerInput = toLower(input);
@@ -669,7 +689,8 @@ private:
         if (toLower(input) == "exit") return;
         const Product* productPtr = nullptr;
         for (const auto& product : products) {
-            if (product.id == input) { productPtr = &product; break; }
+            if (product.id == input) { 
+                productPtr = &product; break; }
         }
         if (!productPtr) {
             string lowerInput = toLower(input);
@@ -731,8 +752,8 @@ private:
         cin.ignore(100, '\n');
 
         if (choice == 1) {
-            addMoreProductToCart(); }
-        else if (choice == 2) {
+            addMoreProductToCart(); 
+        } else if (choice == 2) {
             cout << "Enter product ID to remove: ";
             string id;
             getline(cin, id);
@@ -740,7 +761,9 @@ private:
             auto items = currentActiveCart.getItems();
             bool exists = false;
             for (const auto& item : items) {
-                if (item.first.id == id) { exists = true; break; }
+                if (item.first.id == id) { 
+                exists = true; 
+                break; }
             }
             if (!exists) {
                 cout << "Item not found in cart." << endl;
@@ -766,7 +789,10 @@ private:
             bool exists = false;
             int currentQuantity = 0;
             for (const auto& item : items) {
-                if (item.first.id == id) { exists = true; currentQuantity = item.second; break; }
+                if (item.first.id == id) { 
+                    exists = true; 
+                    currentQuantity = item.second; 
+                    break; }
             }
             if (!exists) {
                 cout << "Item not found in cart." << endl;
@@ -792,8 +818,7 @@ private:
         else if (choice == 4) {
             cout << "Update cancelled." << endl;
             return;
-        }
-        else {
+        } else {
             cout << "Invalid choice." << endl;
         }
     }
@@ -804,7 +829,7 @@ private:
             return;
         }
 
-        cout << "\nCheckout:\n------------------" << endl;
+        cout << "\nCheckout:\n" << string(18, '-') << endl;
         currentActiveCart.viewCart();
 
         cout << "Continue checkout? (Y/N): ";
@@ -881,9 +906,9 @@ private:
     }
 
     void printReceipt(const Order& order) {
-        cout << "\n==========================================" << endl;
-        cout << "                 RECEIPT                  " << endl;
-        cout << "==========================================" << endl;
+        cout << "\n" << string(42, '=') << endl;
+        cout << "                RECEIPT                  " << endl;
+        cout << string(42, '=') << endl;
 
         tm* ltm = localtime(&(order.orderTime));
         cout << "Purchase Date:  " << 1900 + ltm->tm_year << "/" 
@@ -891,17 +916,17 @@ private:
         cout << "Purchase Time:  " << setw(2) << setfill('0') << ltm->tm_hour << ":"
              << setw(2) << setfill('0') << ltm->tm_min << ":"
              << setw(2) << setfill('0') << ltm->tm_sec << endl;
-        cout << "------------------------------------------" << endl;
+        cout << string(42, '-') << endl;
 
         cout << "Buyer Contact Details:\n";
         cout << "Name:  " << order.buyerName << endl;
         cout << "Phone: " << order.buyerPhone << endl;
-        cout << "------------------------------------------" << endl;
+        cout << string(42, '-') << endl;
         cout << "Payment Method: " << order.paymentMethod << endl;
-        cout << "------------------------------------------" << endl;
+        cout << string(42, '-') << endl;
         cout << "Order Number: " << order.orderNumber << endl;
        
-        cout << "\nPurchased Digital Products:\n------------------" << endl;
+        cout << "\nPurchased Digital Products:\n" << string(18,'-') << endl;
         // Iterate in reverse for receipt to show most recent purchase at top
         for (int i = order.purchasedItems.size() - 1; i >= 0; --i) {
             const PurchasedItem& pi = order.purchasedItems[i];
@@ -910,10 +935,10 @@ private:
              << " - Price: Php. " << fixed << setprecision(2) << pi.priceAtPurchase * pi.quantity << endl;
     }
 
-        cout << "------------------" << endl;
+        cout << string(18, '-') << endl;
         cout << "Total Items: " << order.totalQuantity << endl;
         cout << "Total Price: Php. " << fixed << setprecision(2) << order.totalPrice << endl;
-        cout << "==========================================\n" << endl;
+        cout << string(42, '=') << "\n" << endl;
     }
 
     void purchaseHistory() {
