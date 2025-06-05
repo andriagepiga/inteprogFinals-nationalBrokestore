@@ -308,7 +308,7 @@ public:
                     currentActiveCart.clearCart();
                     break;
                 }
-                mainMenu(); // Show main menu after login
+                mainMenu(); // Show User Dashboard after login
             } else if (toupper(choice) == 'N') {
                 bool signedUp = signUpAndLogin(); // Attempt to sign up and log in
                 if (!signedUp) {
@@ -323,12 +323,14 @@ public:
         }
     }
 
-private: // Convert string to lowercase
+private: 
+    // Convert string to lowercase
     string toLower(string s) {
         for (char &c : s) {
             c = tolower(c);
         } return s;
     }
+
     bool logIn() { // Log in a user
         string email, password;
         while (true) {
@@ -381,7 +383,7 @@ private: // Convert string to lowercase
                 } 
                 return true;
             } else {
-                cout << errorMessage << endl; // Display error message
+                cout << errorMessage << endl;
                 cout << "Try again? (Y = yes, N = no/exit): ";
                 char retry;
                 cin >> retry;
@@ -391,16 +393,15 @@ private: // Convert string to lowercase
         }
     }
 
-    // Display the main menu for logged-in users
+    // Display the User Dashboard for logged-in users
     void mainMenu() {
         int choice;
         while (true) {
            cout << "\n======= User Dashboard =======" << endl;
             cout << "1. Browse Products" << endl;
             cout << "2. Digital Shopping Cart" << endl;
-            cout << "3. Checkout" << endl;
-            cout << "4. Purchase History" << endl;
-            cout << "5. Logout" << endl;
+            cout << "3. Purchase History" << endl;
+            cout << "4. Logout" << endl;
             cout << "==============================" << endl;
 
             cout << "Enter your choice: ";
@@ -415,9 +416,8 @@ private: // Convert string to lowercase
             switch (choice) {
                 case 1: browseProductsMenu(); break;
                 case 2: digitalShoppingCartMenu(); break;
-                case 3: checkoutOption(); break;
-                case 4: purchaseHistory(); break;
-                case 5:
+                case 3: purchaseHistory(); break;
+                case 4:
                     cout << "Logging out..." << endl;
                     if (currentUser) {
                         currentUser->userCart.setItems(currentActiveCart.getItems()); // Save cart before logout
@@ -927,10 +927,10 @@ private: // Convert string to lowercase
             getline(cin, pmChoice);
 
             if (pmChoice == "1") {
-                cardType = "debit card";
+                cardType = "Debit card";
                 break;
             } else if (pmChoice == "2") {
-                cardType = "credit card";
+                cardType = "Credit card";
                 break;
             } else {
                 cout << "Invalid choice. Please enter 1 or 2." << endl;
@@ -1048,7 +1048,7 @@ private: // Convert string to lowercase
         currentActiveCart.clearCart();
 
         cout << "Your order was successfully placed! You can now proceed to download your items." << endl;
-        cout << "If you want to view your purchases again, just visit your Purchase History page." << endl;
+        cout << "If you want to view and download your purchases, just visit your Purchase History page." << endl;
         cout << "Thank you for shopping with us! :)" << endl;
     }
 
