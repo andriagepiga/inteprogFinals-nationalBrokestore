@@ -3,7 +3,6 @@
 #include <string>
 #include <ctime>
 #include <iomanip>
-#include <stdexcept>
 #include <algorithm>
 #include <map>
 
@@ -145,12 +144,6 @@ public:
     }
 };
 
-// Exception class for user-related errors
-class UserException : public runtime_error {
-public:
-    UserException(const string& message) : runtime_error(message) {}
-};
-
 // Authentication class
 class Auth {
 private:
@@ -162,22 +155,36 @@ public:
         users.emplace_back("alex_trisha@gmail.com", "inteprogfinals");
     }
 
-    void signUp(const string& email, const string& password) {
-        for (const auto& user : users) {
+      bool signUp(const string& email, const string& password, string* errorMessage) {
+        // Email validation. Must contain "@gmail.com"
+        if (email.find("@gmail.com") >= email.length()) {
+            *errorMessage = "Invalid email format. It must be a valid gmail.";
+            return false;
+        }
+
+        // Password validation: Must be at least 8 characters long
+        if (password.length() < 8) {
+            *errorMessage = "Password must be at least 8 characters long.";
+            return false;
+        }
+    for (const auto& user : users) {
             if (user.email == email) {
-                throw UserException("User already exists.");
+                *errorMessage = "User already exists.";
+
+                return false;
             }
         }
         users.emplace_back(email, password);
     }
 
-    User& logIn(const string& email, const string& password) {
+    User* logIn(const string& email, const string& password) {
+
         for (auto& user : users) {
             if (user.email == email && user.password == password) {
-                return user;
+                return &user;
             }
         }
-        throw UserException("Invalid email or password.");
+        return nullptr; // Login failed
     }
 
     User* findUserByEmail(const string& email) {
@@ -188,7 +195,6 @@ public:
     }
 };
 
-// Strategy Design Pattern for Checkout
 class CheckoutStrategy {
 public:
     virtual void checkout(const ShoppingCart& cart) = 0;
@@ -200,7 +206,7 @@ public:
     void checkout(const ShoppingCart& cart) override {
         cart.viewCart();
         cout << "Proceeding to standard checkout..." << endl;
-        // Additional checkout logic can be added here
+
     }
 };
 
@@ -210,43 +216,43 @@ private:
     Auth auth;
     ShoppingCart cart;
     vector<Product> products;
-    User* currentUser = nullptr;
+User* currentUser = nullptr; // Pointer to the currently logged-in user
 
 public:
     Application() {
-        // Sample products - digital product categories and items
-        products.emplace_back("0001", "Canva Template Pack", 15.00, "Digital Templates");
+        // Digital product categories and items
+        products.emplace_back("0001", "Canva Template Pack", 50.00, "Digital Templates");
         products.emplace_back("0002", "Resume Template", 10.00, "Digital Templates");
-        products.emplace_back("0003", "Presentation Template PPT", 12.00, "Digital Templates");
+        products.emplace_back("0003", "Presentation Template PPT", 20.00, "Digital Templates");
         products.emplace_back("0004", "Instagram Story Templates", 8.00, "Digital Templates");
-        products.emplace_back("0005", "Website Theme HTML", 25.00, "Digital Templates");
+        products.emplace_back("0005", "Website Theme HTML", 120.00, "Digital Templates");
 
         products.emplace_back("1001", "Ebook: Learn Coding", 20.00, "Educational Content");
         products.emplace_back("1002", "Online Course: Design Basics", 50.00, "Educational Content");
-        products.emplace_back("1003", "Study Guide - Math", 15.00, "Educational Content");
+        products.emplace_back("1003", "Study Guide - Math", 25.00, "Educational Content");
         products.emplace_back("1004", "Language Learning Pack", 22.00, "Educational Content");
-        products.emplace_back("1005", "Printable Planner Set", 9.00, "Educational Content");
+        products.emplace_back("1005", "Printable Planner Set", 115.00, "Educational Content");
 
         products.emplace_back("2001", "Stock Photos Bundle", 30.00, "Creative Assets");
-        products.emplace_back("2002", "Vector Graphics Pack", 18.00, "Creative Assets");
-        products.emplace_back("2003", "Font Collection", 25.00, "Creative Assets");
-        products.emplace_back("2004", "Icon Set", 12.00, "Creative Assets");
-        products.emplace_back("2005", "Photoshop Presets", 20.00, "Creative Assets");
+        products.emplace_back("2002", "Vector Graphics Pack", 28.00, "Creative Assets");
+        products.emplace_back("2003", "Font Collection", 23.00, "Creative Assets");
+        products.emplace_back("2004", "Icon Set", 18.00, "Creative Assets");
+        products.emplace_back("2005", "Photoshop Presets", 45.00, "Creative Assets");
 
         products.emplace_back("3001", "Mobile App: Productivity", 40.00, "Software & Tools");
         products.emplace_back("3002", "WordPress Plugin Premium", 35.00, "Software & Tools");
         products.emplace_back("3003", "Website Builder Theme", 45.00, "Software & Tools");
-        products.emplace_back("3004", "API Access Pack", 100.00, "Software & Tools");
-        products.emplace_back("3005", "SDK for Developers", 80.00, "Software & Tools");
+        products.emplace_back("3004", "API Access Pack", 130.00, "Software & Tools");
+        products.emplace_back("3005", "SDK for Developers", 180.00, "Software & Tools");
 
         products.emplace_back("4001", "Royalty-Free Music Pack", 30.00, "Music & Audio");
         products.emplace_back("4002", "Sound Effects Collection", 25.00, "Music & Audio");
-        products.emplace_back("4003", "Audiobook: Business Success", 15.00, "Music & Audio");
-        products.emplace_back("4004", "Paid Podcast Subscription", 10.00, "Music & Audio");
+        products.emplace_back("4003", "Audiobook: Business Success", 25.00, "Music & Audio");
+        products.emplace_back("4004", "Paid Podcast Subscription", 55.00, "Music & Audio");
         products.emplace_back("4005", "Voiceover Samples", 20.00, "Music & Audio");
 
-        products.emplace_back("5001", "Business Plan Template", 35.00, "Business & Marketing");
-        products.emplace_back("5002", "Marketing Kit", 40.00, "Business & Marketing");
+        products.emplace_back("5001", "Business Plan Template", 169.00, "Business & Marketing");
+        products.emplace_back("5002", "Marketing Kit", 49.00, "Business & Marketing");
         products.emplace_back("5003", "Email Template Set", 18.00, "Business & Marketing");
         products.emplace_back("5004", "Logo Design Files", 45.00, "Business & Marketing");
         products.emplace_back("5005", "Brand Style Guide", 50.00, "Business & Marketing");
@@ -304,12 +310,14 @@ private:
             cout << "Password: ";
             getline(cin,password);
 
-            try {
-                currentUser = &auth.logIn(email, password);
+            currentUser = auth.logIn(email, password);
+
+            if (currentUser) {
                 cout << "Login successful!" << endl;
                 return true;
-            } catch (const UserException& e) {
-                cout << e.what() << endl;
+             } else {
+
+                cout << "Invalid email or password." << endl;
                 cout << "Try again? (Y = yes, N = no/exit): ";
                 char retry;
                 cin >> retry;
@@ -321,6 +329,7 @@ private:
 
     bool signUpAndLogin() {
         string email, password;
+            string errorMessage;
         while (true) {
             cout << "\n=== Sign Up ===" << endl;
             cout << "Email (or 'exit' to quit): ";
@@ -329,8 +338,7 @@ private:
             cout << "Password: ";
             getline(cin,password);
 
-            try {
-                auth.signUp(email, password);
+            if (auth.signUp(email, password, &errorMessage)) {
                 cout << "Sign up successful! Logging you in now..." << endl;
                 currentUser = auth.findUserByEmail(email);
                 if (!currentUser) {
@@ -338,8 +346,11 @@ private:
                     return false;
                 }
                 return true;
-            } catch (const UserException& e) {
-                cout << e.what() << endl;
+            } 
+
+            else {
+
+                cout << errorMessage << endl; // Displays the error message
                 cout << "Try again? (Y = yes, N = no/exit): ";
                 char retry;
                 cin >> retry;
@@ -660,8 +671,28 @@ private:
         cout << "Enter your details to complete purchase:" << endl;
         cout << "Name: ";
         getline(cin, name);
-        cout << "Phone number: ";
-        getline(cin, phone);
+                while (true) {
+
+            cout << "Phone number: ";
+
+            getline(cin, phone);
+
+            bool isValidPhone = true;
+
+            for (char c : phone) {
+
+                if (!isdigit(c)) { // Checks if the character is not a digit
+                    isValidPhone = false;
+                    break;
+                }
+            }
+
+            if (isValidPhone) {
+                break; // Exit loop if phone number is valid
+            } else {
+                cout << "Invalid phone number. Please enter digits only." << endl;
+            }
+        }
 
         string paymentMethod;
         while (true) {
