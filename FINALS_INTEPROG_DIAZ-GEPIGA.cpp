@@ -181,7 +181,7 @@ public:
             }
         }
         users.emplace_back(email, password);
-        return true;
+        return true; // Sign-up successful
     }
 
     User* logIn(const string& email, const string& password) {
@@ -285,20 +285,23 @@ public:
                 bool loggedIn = logIn();
                 if (!loggedIn) {
                     cout << "Exiting program. Goodbye!" << endl;
-                    currentActiveCart.clearCart();
+                    currentActiveCart.clearCart();  // Clear the cart if login process is exited
                     break;
                 }
                 mainMenu();
+
+            /* When logging out from mainMenu, the cart is saved back to currentUser->userCart and currentUser is set to nullptr. The currentActiveCart is effectively cleared for the next login (as it will be loaded from the new currentUser's userCart). */
             }
             else if (toupper(choice) == 'N') {
                 bool signedUp = signUpAndLogin();
                 if (!signedUp) {
                     cout << "Exiting program. Goodbye!" << endl;
                   
-                    currentActiveCart.clearCart();
+                    currentActiveCart.clearCart(); // Clear the cart if signup process is exited
                     break;
                 }
                 mainMenu();
+            // Same logic as above for logging out.
             }
             else {
                 cout << "Invalid option. Please enter Y, N, or E." << endl;
@@ -321,6 +324,7 @@ private:
 
             if (currentUser) {
                 cout << "Login successful!" << endl;
+            // Load the user's saved cart into the active cart
                 currentActiveCart.setItems(currentUser->userCart.getItems());
                 return true;
              } else {
@@ -353,6 +357,7 @@ private:
                     cout << "Unexpected error: user not found after sign-up." << endl;
                     return false;
                 }
+            // For a new user, their cart will be empty, so no explicit loading needed.
                 return true;
             } 
 
@@ -371,7 +376,7 @@ private:
         int choice;
         while (true) {
             cout << "\n======= Main Menu =======\n";
-            cout << "1. Browse Products\n2. Search Products\n3. Filter Products\n4. View Cart\n5. Add to Cart\n6. Update Cart\n7. Checkout\n8. Purchase History\n9. Logout\n";
+            cout << "1. Browse Products\n2. View Cart\n3. Update Cart\n4. Checkout\n5. Purchase History\n6. Logout\n"; // Fixed numbering
             cout << "==========================\n";
             cout << "Enter your choice: ";
             while (!(cin >> choice)) {
@@ -383,15 +388,12 @@ private:
             cin.ignore(100, '\n'); 
 
             switch (choice) {
-                case 1: browseProducts(); break;
-                case 2: searchProducts(); break;
-                case 3: filterProducts(); break;
-                case 4: viewCartOption(); break;
-                case 5: addToCartOption(); break;
-                case 6: editCartOption(); break;
-                case 7: checkoutOption(); break;
-                case 8: purchaseHistory(); break;
-                case 9:
+                case 1: browseProductsMenu(); break;
+                case 2: viewCartOption(); break; // Corrected case
+                case 3: editCartOption(); break; // Corrected case
+                case 4: checkoutOption(); break; // Corrected case
+                case 5: purchaseHistory(); break; // Corrected case
+                case 6: // Logout - Corrected case
                     cout << "Logging out..." << endl;
                     if (currentUser) {
                         // Save the current active cart to the user's cart before logging out
@@ -406,12 +408,84 @@ private:
         }
     }
 
-    void browseProducts() {
-        cout << "\nAvailable Digital Products:\n------------------" << endl;
-        for (const auto& product : products) {
+   // Helper function to display products
+    void displayProducts(const vector<Product>& productsToDisplay) {
+        if (productsToDisplay.empty()) {
+            cout << "No products to display." << endl;
+            return;
+        }
+
+        cout << "\n------------------" << endl;
+
+        for (const auto& product : productsToDisplay) {
             cout << product.id << " - " << product.name
                  << " - Category: " << product.category
                  << " - Price: Php. " << fixed << setprecision(2) << product.price << endl;
+        }
+        cout << "------------------" << endl;
+
+    }
+    void browseProductsMenu() {
+        int choice;
+        while (true) {
+            cout << "\n===== Browse Products =====" << endl;
+            displayProducts(products); // Display all products initially
+            cout << "1. Search Products\n2. Filter Products by Category\n3. Add Product to Cart\n4. Back to Main Menu\n";
+            cout << "===========================\n";
+            cout << "Enter your choice: ";
+            while (!(cin >> choice)) {
+                cout << "Invalid input. Please enter a number: ";
+
+                cin.clear();
+                cin.ignore(100, '\n');
+            }
+
+            cin.ignore(100, '\n');
+
+            switch (choice) {
+                case 1: searchProducts(); break;
+                case 2: filterProducts(); break;
+                case 3: addProductToCart(products); break; // Pass all products
+                case 4: return; // Go back to main menu
+                default:
+                    cout << "Invalid choice. Please try again." << endl;
+            }
+        }
+    }
+
+    void handleProductSelectionFromResults(const vector<Product>& currentResults) {
+        if (currentResults.empty()) {
+            cout << "No products to select from." << endl;
+            return;
+        }
+
+        int choice;
+        while (true) {
+            cout << "\nWhat would you like to do with these results?\n";
+            cout << "1. Add a product to cart\n2. Continue Browse\n";
+            cout << "Enter your choice: ";
+
+            while (!(cin >> choice)) {
+                cout << "Invalid input. Please enter a number: ";
+                cin.clear();
+                cin.ignore(100, '\n');
+            }
+
+            cin.ignore(100, '\n');
+
+            switch (choice) {
+                case 1:
+                    addProductToCart(currentResults); // Pass the current search/filter results
+                    // Stay on the same results after adding to cart
+                    cout << "\nCurrently viewing the same search/filter results." << endl;
+                    displayProducts(currentResults);
+                    break;
+
+                case 2:
+                    return; // Go back to the browse products menu
+                default:
+                    cout << "Invalid choice. Please try again." << endl;
+            }
         }
     }
 
@@ -422,18 +496,22 @@ private:
         getline(cin, term);
         transform(term.begin(), term.end(), term.begin(), ::tolower);
 
-        bool found = false;
+        vector<Product> foundProducts;
         for (const auto& product : products) {
             string nameLower = product.name;
             transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower);
-            if (nameLower.find(term) < nameLower.length()) {
-                cout << product.id << " - " << product.name
-                     << " - Category: " << product.category
-                     << " - Price: Php. " << fixed << setprecision(2) << product.price << endl;
-                found = true;
+           if (nameLower.find(term) < nameLower.length()) { // Using length() instead of npos
+                foundProducts.push_back(product);
             }
         }
-        if (!found) cout << "No products found containing: " << term << endl;
+        if (foundProducts.empty()) {
+            cout << "No products found containing: " << term << endl;
+
+        } else {
+            cout << "\nSearch Results for '" << term << "':" << endl;
+            displayProducts(foundProducts);
+            handleProductSelectionFromResults(foundProducts);
+        }
     }
 
     void filterProducts() {
@@ -464,13 +542,15 @@ private:
         }
 
         string selectedCategory = categories[catChoice-1];
-        cout << "\nProducts in category: " << selectedCategory << "\n-------------------" << endl;
+         vector<Product> filteredProducts;
         for (const auto& product : products) {
             if (product.category == selectedCategory) {
-                cout << product.id << " - " << product.name
-                     << " - Price: Php. " << fixed << setprecision(2) << product.price << endl;
+           filteredProducts.push_back(product);
             }
         }
+         cout << "\nProducts in category: " << selectedCategory << endl;
+        displayProducts(filteredProducts);
+        handleProductSelectionFromResults(filteredProducts);
     }
 
     void viewCartOption() {
@@ -478,26 +558,26 @@ private:
         currentActiveCart.viewCart();
     }
 
-    void addToCartOption() {
+    void addProductToCart(const vector<Product>& availableProducts) {
         cout << "\nAdd to Cart:" << endl;
-        if (products.empty()) {
-            cout << "No products available." << endl;
+        if (availableProducts.empty()) {
+            cout << "No products available to add." << endl;
             return;
         }
-        browseProducts();
+  
         cout << "Enter product ID or name to add (or 'exit' to cancel): ";
         string input;
         getline(cin, input);
         if (input == "exit") return;
 
-        Product* productPtr = nullptr;
-        for (auto& product : products) {
+        const Product* productPtr = nullptr; // Changed to const Product*
+        for (const auto& product : availableProducts) { // Search only within the provided list
             if (product.id == input) { productPtr = &product; break; }
         }
         if (!productPtr) {
             string inputLower = input;
             transform(inputLower.begin(), inputLower.end(), inputLower.begin(), ::tolower);
-            for (auto& product : products) {
+            for (const auto& product : availableProducts) { // Search only within the provided list
                 string nameLower = product.name;
                 transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower);
                 if (nameLower.find(inputLower) < nameLower.length()) {
@@ -507,7 +587,7 @@ private:
             }
         }
         if (!productPtr) {
-            cout << "Product not found." << endl;
+            cout << "Product not found in the current list." << endl;
             return;
         }
 
@@ -528,20 +608,20 @@ private:
 
     void addMoreProductToCart() {
         cout << "\nAdd more product to cart:" << endl;
-        browseProducts();
+        displayProducts(products); // Display all products for this option
         cout << "Enter product ID or name to add (or 'exit' to cancel): ";
         string input;
         getline(cin, input);
         if (input == "exit") return;
-        Product* productPtr = nullptr;
-        for (auto& product : products) {
+        const Product* productPtr = nullptr; // Changed to const Product*
+        for (const auto& product : products) { // Search all products
             if (product.id == input) { productPtr = &product; break; }
         }
         if (!productPtr) {
             string inputLower = input;
             transform(inputLower.begin(), inputLower.end(), inputLower.begin(), ::tolower);
             
-            for (auto& product : products) {
+            for (const auto& product : products) { // Search all products
                 string nameLower = product.name;
                 transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower);
 
@@ -739,7 +819,7 @@ private:
             currentUser->addOrder(newOrder);
 
         printReceipt(newOrder);
-        currentActiveCart.clearCart();
+        currentActiveCart.clearCart();  // Clear the active cart after successful checkout
         cout << "Successfully placed your order! You can now download your digital products on your Purchased History." << endl;
     }
 
