@@ -8,7 +8,6 @@
 
 using namespace std;
 
-// Product class
 class Product {
 public:
     string id;
@@ -20,14 +19,12 @@ public:
         : id(id), name(name), price(price), category(category) {}
 };
 
-// Simple struct to store purchased product info with quantity and price at purchase time
 struct PurchasedItem {
     Product product;
     int quantity;
     double priceAtPurchase;
 };
 
-// Order class, contains order details and purchased items
 class Order {
 public:
     long long orderNumber;
@@ -57,10 +54,9 @@ public:
           totalQuantity(totalQuantity) {}
 };
 
-// ShoppingCart class
 class ShoppingCart {
 private:
-    vector<pair<Product, int>> items; // Product and quantity pairs
+    vector<pair<Product, int>> items;
 
 public:
     void addItem(const Product& product, int quantity) {
@@ -130,19 +126,17 @@ public:
         return items.empty();
     }
       
-// Setter for items (used when loading cart for a user)
  void setItems(const vector<pair<Product, int>>& newItems) {
         items = newItems;
     }
 };
 
-// User class, now holds purchase history vector of Orders and a ShoppingCart
 class User {
 public:
     string email;
     string password;
     vector<Order> purchaseHistory;
-    ShoppingCart userCart; // Each user now has their own cart
+    ShoppingCart userCart;
 
     User(string email = "", string password = "") : email(email), password(password) {}
 
@@ -151,19 +145,16 @@ public:
     }
 };
 
-// Authentication class
 class Auth {
 private:
     vector<User> users;
 
 public:
     Auth() {
-        // Test user for testing
         users.emplace_back("alex_trisha@gmail.com", "inteprogfinals");
     }
 
       bool signUp(const string& email, const string& password, string* errorMessage) {
-        // Email validation. Must contain "@gmail.com"
         bool hasGmail = false;
         for (size_t i = 0; i + 9 <= email.length(); ++i) {
             if (email.substr(i, 10) == "@gmail.com") {
@@ -176,20 +167,20 @@ public:
             return false;
         }
 
-        // Password validation: Must be at least 8 characters long
         if (password.length() < 8) {
             *errorMessage = "Password must be at least 8 characters long.";
             return false;
         }
-    for (const auto& user : users) {
+         for (const auto& user : users) {
             if (user.email == email) {
                 *errorMessage = "User already exists.";
 
                 return false;
             }
         }
+        
         users.emplace_back(email, password);
-        return true; // Sign-up successful
+        return true;
     }
 
     User* logIn(const string& email, const string& password) {
@@ -198,15 +189,13 @@ public:
             if (user.email == email && user.password == password) {
                 return &user;
             }
-        }
-        return nullptr; // Login failed
+        } return nullptr;
     }
 
     User* findUserByEmail(const string& email) {
         for (auto& user : users) {
             if (user.email == email) return &user;
-        }
-        return nullptr;
+        } return nullptr;
     }
 };
 
@@ -225,17 +214,15 @@ public:
     }
 };
 
-// Main application class
 class Application {
 private:
     Auth auth;
-    ShoppingCart currentActiveCart; // This will hold the cart of the currently logged-in user
+    ShoppingCart currentActiveCart;
     vector<Product> products;
-    User* currentUser = nullptr; // Pointer to the currently logged-in user
+    User* currentUser = nullptr;
 
 public:
     Application() {
-        // Digital product categories and items
         products.emplace_back("0001", "Canva Template Pack", 50.00, "Digital Templates");
         products.emplace_back("0002", "Resume Template", 10.00, "Digital Templates");
         products.emplace_back("0003", "Presentation Template PPT", 20.00, "Digital Templates");
@@ -286,14 +273,14 @@ public:
 
             if (toupper(choice) == 'E') {
                 cout << "Exiting program. Goodbye!" << endl;
-                currentActiveCart.clearCart(); // Clear the cart when the program exits
+                currentActiveCart.clearCart();
                 break;
             }
             else if (toupper(choice) == 'Y') {
                 bool loggedIn = logIn();
                 if (!loggedIn) {
                     cout << "Exiting program. Goodbye!" << endl;
-                    currentActiveCart.clearCart();  // Clear the cart if login process is exited
+                    currentActiveCart.clearCart();
                     break;
                 }
                 mainMenu();
@@ -304,7 +291,7 @@ public:
                 if (!signedUp) {
                     cout << "Exiting program. Goodbye!" << endl;
                   
-                    currentActiveCart.clearCart(); // Clear the cart if signup process is exited
+                    currentActiveCart.clearCart();
                     break;
                 }
                 mainMenu();
@@ -330,13 +317,13 @@ private:
             getline(cin,email);
             if(toLower(email) == "exit") return false;
             cout << "Password: ";
-            getline(cin,password);
+            getline(cin, password);
+            cout << "==============" << endl;
 
             currentUser = auth.logIn(email, password);
 
             if (currentUser) {
                 cout << "Login successful!" << endl;
-            // Load the user's saved cart into the active cart
                 currentActiveCart.setItems(currentUser->userCart.getItems());
                 return true;
              } else {
@@ -360,7 +347,8 @@ private:
             getline(cin,email);
             if(toLower(email) == "exit") return false;
             cout << "Password: ";
-            getline(cin,password);
+            getline(cin, password);
+            cout << "==============" << endl;
 
             if (auth.signUp(email, password, &errorMessage)) {
                 cout << "Sign up successful! Logging you in now..." << endl;
@@ -369,12 +357,11 @@ private:
                     cout << "Unexpected error: user not found after sign-up." << endl;
                     return false;
                 }
-            // For a new user, their cart will be empty, so no explicit loading needed.
                 return true;
             } 
 
             else {
-                cout << errorMessage << endl; // Displays the error message
+                cout << errorMessage << endl;
                 cout << "Try again? (Y = yes, N = no/exit): ";
                 char retry;
                 cin >> retry;
@@ -412,12 +399,10 @@ private:
                 case 5:
                     cout << "Logging out..." << endl;
                     if (currentUser) {
-                        // Save the current active cart to the user's cart before logging out
                         currentUser->userCart.setItems(currentActiveCart.getItems());
-                        currentActiveCart.clearCart(); // Clear the active cart for the next user
-                        currentUser = nullptr; // No user is logged in now
-                    }
-                    return;
+                        currentActiveCart.clearCart();
+                        currentUser = nullptr;
+                    } return;
                 default:
                     cout << "Invalid choice. Please try again." << endl;
             }
@@ -427,9 +412,11 @@ private:
    void digitalShoppingCartMenu() {
         int choice;
         while (true) {
+        cout << "\nViewing Cart:" << endl;
+            currentActiveCart.viewCart();
             cout << "\n=== Digital Shopping Cart ===" << endl;
-            cout << "1. View Cart" << endl;
-            cout << "2. Update Cart" << endl;
+            cout << "1. Update Cart" << endl;
+            cout << "2. Checkout Items" << endl;
             cout << "3. Back to User Dashboard" << endl;
             cout << "=============================" << endl;
 
@@ -441,43 +428,46 @@ private:
                 cin.ignore(100, '\n');
             }
             cin.ignore(100, '\n');
-            switch (choice) {
-                case 1: viewCartOption(); break;
-                case 2: editCartOption(); break;
-                case 3: return; // Go back to  user dashboard
-                default:
-                    cout << "Invalid choice. Please try again." << endl;
+
+            if (choice == 1) {
+                editCartOption();
+            } else if (choice == 2) {
+                checkoutOption();
+                return;
+            } else if (choice == 3) {
+                return;
+            } else {
+                cout << "Invalid choice. Please try again." << endl;
             }
         }
     }
 
-    // Helper function to display products
     void displayProducts(const vector<Product>& productsToDisplay) {
         if (productsToDisplay.empty()) {
             cout << "No products to display." << endl;
             return;
         }
 
-         cout << "\n" << string(18, '-') << endl;
+        cout << string(27, '-') << endl;
 
         for (const auto& product : productsToDisplay) {
             cout << product.id << " - " << product.name
                  << " - Category: " << product.category
                  << " - Price: Php. " << fixed << setprecision(2) << product.price << endl;
         }
-        cout << string(18, '-') << endl;
+        cout << string(27, '-') << endl;
 
     }
     void browseProductsMenu() {
         int choice;
         while (true) {
             cout << "\n===== Browse Products =====" << endl;
-            displayProducts(products); // Display all products initially
+            displayProducts(products);
             cout << "1. Search Products" << endl;
             cout << "2. Filter Products by Category" << endl;
             cout << "3. Add Product to Cart" << endl;
             cout << "4. Back to User Dashboard" << endl;
-            cout << "===========================" << endl;
+            cout << string(24, '=') << endl;
 
             cout << "Enter your choice: ";
             while (!(cin >> choice)) {
@@ -492,8 +482,8 @@ private:
             switch (choice) {
                 case 1: searchProducts(); break;
                 case 2: filterProducts(); break;
-                case 3: addProductToCart(products); break; // Pass all products
-                case 4: return; // Go back to user dashboard
+                case 3: addProductToCart(products); break;
+                case 4: return;
                 default:
                     cout << "Invalid choice. Please try again." << endl;
             }
@@ -524,14 +514,13 @@ private:
 
             switch (choice) {
                 case 1:
-                    addProductToCart(currentResults); // Pass the current search/filter results
-                    // Stay on the same results after adding to cart
+                    addProductToCart(currentResults); 
                     cout << "\nCurrently viewing the same search/filter results." << endl;
                     displayProducts(currentResults);
                     break;
 
                 case 2:
-                    return; // Go back to the browse products menu
+                    return;
                 default:
                     cout << "Invalid choice. Please try again." << endl;
             }
@@ -539,7 +528,10 @@ private:
     }
 
     void searchProducts() {
-        cout << "\nSearch Products:\n" << string(18, '-') << endl;
+        cout << string(18, '=') << endl;
+        cout << "Search Products:" << endl;
+        cout << string(18, '=') << endl;
+
         cout << "Enter search term: ";
         string term;
         getline(cin, term);
@@ -570,7 +562,10 @@ private:
     }
 
     void filterProducts() {
-        cout << "\nFilter Products By Category:" << endl;
+        cout << string(29, '=') << endl;
+        cout << "Filter Products By Category:" << endl;
+        cout << string(29, '=') << endl;
+
         vector<string> categories;
         for (const auto& p : products) {
             bool exists = false;
@@ -594,6 +589,7 @@ private:
             cout << i+1 << ". " << categories[i] << endl;
         }
 
+        cout << string(29, '=') << endl;
         cout << "Choose category number: ";
         int catChoice;
         while (!(cin >> catChoice)) {
@@ -620,11 +616,6 @@ private:
         handleProductSelectionFromResults(filteredProducts);
     }
 
-    void viewCartOption() {
-        cout << "\nViewing Cart:" << endl;
-        currentActiveCart.viewCart();
-    }
-
     void addProductToCart(const vector<Product>& availableProducts) {
         cout << "\nAdd to Cart:" << endl;
         if (availableProducts.empty()) {
@@ -637,8 +628,8 @@ private:
         getline(cin, input);
         if (toLower(input) == "exit") return;
 
-        const Product* productPtr = nullptr; // Changed to const Product*
-        for (const auto& product : availableProducts) { // Search only within the provided list
+        const Product* productPtr = nullptr;
+        for (const auto& product : availableProducts) {
             if (product.id == input) { 
                 productPtr = &product; 
                 break; }
@@ -653,8 +644,7 @@ private:
                         found = true;
                         break;
                     }
-                }
-                if (found) {
+                } if (found) {
                     productPtr = &product;
                     break;
                 }
@@ -682,7 +672,7 @@ private:
 
     void addMoreProductToCart() {
         cout << "\nAdd more product to cart:" << endl;
-        displayProducts(products); // Display all products for this option
+        displayProducts(products);
         cout << "Enter product ID or name to add (or 'exit' to cancel): ";
         string input;
         getline(cin, input);
@@ -702,8 +692,7 @@ private:
                         found = true;
                         break;
                     }
-                }
-                if (found) { 
+                } if (found) { 
                     productPtr = &product;
                     break;
                 }
@@ -721,7 +710,7 @@ private:
             if (!(cin >> quantity) || quantity <= 0) {
                 cout << "Invalid quantity. Please enter a positive number." << endl;
                 cin.clear();
-                cin.ignore(100, '\n'); // Discard invalid input
+                cin.ignore(100, '\n');
                 quantity = 0;
             }
         }
@@ -738,17 +727,24 @@ private:
             return;
         }
 
-        cout << "\nUpdate Cart:\n------------" << endl;
+        cout << "\n================\nUpdate Cart:\n================" << endl;
         currentActiveCart.viewCart();
 
-        cout << "Choose an option: 1. Add more product 2. Remove product 3. Edit Quantity 4. Cancel\nEnter choice: ";
-        int choice;
+        cout << "\n=========================\nChoose an option:\n";
+        cout << "1. Add more product\n";
+        cout << "2. Remove product\n";
+        cout << "3. Edit Quantity\n";
+        cout << "4. Cancel\n";
+        cout << "=========================\nEnter choice: ";
+
+    int choice;
                
         while (!(cin >> choice)) {
-            cout << "Invalid input. Please enter a number: ";
-            cin.clear(); 
-            cin.ignore(100, '\n');
+        cout << "Invalid input. Please enter a number: ";
+        cin.clear(); 
+        cin.ignore(100, '\n');
         }
+
         cin.ignore(100, '\n');
 
         if (choice == 1) {
@@ -769,36 +765,43 @@ private:
                 cout << "Item not found in cart." << endl;
                 return;
             }
-            cout << "Remove item? (Y/N): ";
-            char ans;
-            cin >> ans;
-            cin.ignore();
-            if (toupper(ans) == 'Y') {
-                currentActiveCart.removeItem(id);
-                cout << "Successfully removed item!" << endl;
-            } else {
-                cout << "Removal canceled." << endl;
+        cout << "Remove item? (Y/N): ";
+
+        char ans;
+        cin >> ans;
+        cin.ignore();
+
+        if (toupper(ans) == 'Y') {
+            currentActiveCart.removeItem(id);
+            cout << "Successfully removed item!" << endl;
+        } else {
+
+            cout << "Removal canceled." << endl;
+        }
+    }
+
+    else if (choice == 3) {
+        cout << "Enter product ID to edit quantity: ";
+        string id;
+        getline(cin, id);
+
+        auto items = currentActiveCart.getItems();
+        bool exists = false;
+        int currentQuantity = 0;
+
+        for (const auto& item : items) {
+            if (item.first.id == id) { 
+                exists = true; 
+                currentQuantity = item.second; 
+                break; 
             }
         }
-        else if (choice == 3) {
-            cout << "Enter product ID to edit quantity: ";
-            string id;
-            getline(cin, id);
+        if (!exists) {
+            cout << "Item not found in cart." << endl;
+            return;
+        }
 
-            auto items = currentActiveCart.getItems();
-            bool exists = false;
-            int currentQuantity = 0;
-            for (const auto& item : items) {
-                if (item.first.id == id) { 
-                    exists = true; 
-                    currentQuantity = item.second; 
-                    break; }
-            }
-            if (!exists) {
-                cout << "Item not found in cart." << endl;
-                return;
-            }
-            cout << "Current quantity: " << currentQuantity << endl;
+           cout << "Current quantity: " << currentQuantity << endl;
 
             int newQuantity = 0;
             while (newQuantity <= 0) {
@@ -807,8 +810,7 @@ private:
                     cout << "Invalid quantity. Please enter a positive number." << endl;
                     cin.clear();
                     cin.ignore(100, '\n');
-                    newQuantity = 0;
-                }
+                    newQuantity = 0; }
             }
             cin.ignore(100, '\n');
 
@@ -829,7 +831,7 @@ private:
             return;
         }
 
-        cout << "\nCheckout:\n" << string(18, '-') << endl;
+        cout << string(12, '=') << "\nCheckout:\n" << string(12, '=') << endl;
         currentActiveCart.viewCart();
 
         cout << "Continue checkout? (Y/N): ";
@@ -843,6 +845,7 @@ private:
         }
 
         string name, phone;
+        cout << string(30, '=') << endl;
         cout << "Enter your details to complete purchase:" << endl;
         cout << "Name: ";
         getline(cin, name);
@@ -852,35 +855,122 @@ private:
 
             getline(cin, phone);
 
-            bool isValidPhone = true;
+           bool isValidPhone = (phone.length() >= 8 && phone.length() <= 15);
 
             for (char c : phone) {
 
-                if (!isdigit(c)) { // Checks if the character is not a digit
+                if (!isdigit(c)) { 
                     isValidPhone = false;
                     break;
                 }
             }
 
             if (isValidPhone) {
-                break; // Exit loop if phone number is valid
+                break; 
             } else {
-                cout << "Invalid phone number. Please enter digits only." << endl;
+                cout << "Invalid phone number. Please enter digits only, minimum 8 and maximum 15 characters." << endl;
             }
         }
 
         string paymentMethod;
+        string cardType;
+        string cardNumber;
+        string cardHolder;
+        string ccv;
+
         while (true) {
-            cout << "Select payment method (GCash only): ";
-            getline(cin, paymentMethod);
-            string lowerPaymentMethod = toLower(paymentMethod); // Use toLower for comparison
-            if (lowerPaymentMethod == "gcash") {
-                paymentMethod = "GCash"; //To store with proper capitalization
+            cout << string(30, '-') << endl;
+            cout << "Select payment method:\n1. Debit Card\n2. Credit Card\nChoose (1 or 2): ";
+            string pmChoice;
+            getline(cin, pmChoice);
+
+            if (pmChoice == "1") {
+                cardType = "debit card";
                 break;
+
+            } else if (pmChoice == "2") {
+                cardType = "credit card";
+                break;
+
             } else {
-                cout << "Invalid payment method. Only 'GCash' is accepted for digital products." << endl;
+                cout << "Invalid choice. Please enter 1 or 2." << endl;
             }
         }
+
+        while (true) {
+            cout << string(30, '-') << endl;
+            cout << cardType << " number: ";
+            getline(cin, cardNumber);
+            bool valid = (cardNumber.length() >= 13 && cardNumber.length() <= 19);
+            for (char c : cardNumber) {
+
+                if (!isdigit(c)) {
+                    valid = false;
+                    break;
+                }
+            }
+            if (valid) break;
+            cout << "Invalid card number. Please enter digits only, between 13 and 19 characters." << endl;
+        }
+
+        cout << "Card holder name: ";
+        getline(cin, cardHolder);
+
+        while (true) {
+            cout << "CCV: ";
+            getline(cin, ccv);
+            bool valid = (ccv.length() == 3 || ccv.length() == 4);
+            for (char c : ccv) {
+                if (!isdigit(c)) {
+                    valid = false;
+                    break;
+                }
+            }
+            if (valid) break;
+            cout << "Invalid CCV. Please enter 3 or 4 digit number." << endl;
+        }
+
+        string expDate;
+
+        while (true) {
+            cout << "Expiration date (MM/YY): ";
+            getline(cin, expDate);
+
+            if (expDate.length() == 5 && expDate[2] == '/') {
+                string monthStr = expDate.substr(0, 2);
+                string yearStr = expDate.substr(3, 2);
+                int month = 0;
+                int year = 0;
+
+                try {
+                    month = stoi(monthStr);
+                    year = stoi(yearStr) + 2000;
+
+                } catch (...) {
+                    cout << "Invalid numbers in expiration date." << endl;
+                    continue;
+                }
+
+                if (month >= 1 && month <= 12) {
+
+                    time_t now = time(0);
+                    tm* ltm = localtime(&now);
+                    int currentYear = 1900 + ltm->tm_year;
+                    if (year >= currentYear) {
+
+                        break;
+                    } else {
+                        cout << "Invalid expiration year. Please enter a valid year." << endl;
+                    }
+
+                } else {
+                    cout << "Invalid month. Please enter a month between 01 and 12." << endl;
+                }
+
+                } else {
+                    cout << "Invalid format. Please enter in MM/YY format." << endl;
+                }
+            }
 
         vector<PurchasedItem> purchasedItems;
         double totalPrice = 0;
@@ -895,14 +985,24 @@ private:
         time_t now = time(0);
         long long orderNumber = static_cast<long long>(now);
 
-        Order newOrder(orderNumber, now, name, phone, paymentMethod, purchasedItems, totalPrice, totalQuantity);
+        string paymentMethodDisplay = cardType + " ending in ";
 
-        if(currentUser)
+        if (cardNumber.length() >= 4) {
+            paymentMethodDisplay += cardNumber.substr(cardNumber.length() - 4);
+        } else {
+            paymentMethodDisplay += cardNumber;
+        }
+
+     Order newOrder(orderNumber, now, name, phone, paymentMethodDisplay, purchasedItems, totalPrice, totalQuantity);
+        if (currentUser)
+
             currentUser->addOrder(newOrder);
 
         printReceipt(newOrder);
         currentActiveCart.clearCart();
-        cout << "Successfully placed your order! You can now download your digital products on your Purchased History." << endl;
+        cout << "Your order was successfully placed! You can now proceed to download your items." << endl;
+        cout << "If you want to view your purchases again, just visit your Purchase History page." << endl;
+        cout << "Thank you for shopping with us! :)" << endl;
     }
 
     void printReceipt(const Order& order) {
@@ -927,7 +1027,7 @@ private:
         cout << "Order Number: " << order.orderNumber << endl;
        
         cout << "\nPurchased Digital Products:\n" << string(18,'-') << endl;
-        // Iterate in reverse for receipt to show most recent purchase at top
+
         for (int i = order.purchasedItems.size() - 1; i >= 0; --i) {
             const PurchasedItem& pi = order.purchasedItems[i];
             cout << "[Download Here] " << pi.product.id << " - " << pi.product.name
@@ -951,7 +1051,7 @@ private:
             cout << "No purchase history found." << endl;
             return;
         }
-        // Display purchase history from most recent to oldest
+
         for (int i = currentUser->purchaseHistory.size() - 1; i >= 0; --i) {
             printReceipt(currentUser->purchaseHistory[i]);
         }
